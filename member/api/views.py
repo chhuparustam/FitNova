@@ -1,5 +1,6 @@
 from drf_spectacular.utils import extend_schema
 
+from attendance.tasks import mark_all_member_active
 from member.models import Member
 from member.api.serializer import MemberSerializer
 from rest_framework.response import Response
@@ -9,6 +10,7 @@ from rest_framework import status
 @api_view(['GET'])
 def memberlist(request):
     data = Member.objects.all()
+    mark_all_member_active.delay()
     serializer  = MemberSerializer(data, many=True)
     return Response(serializer.data)
 
