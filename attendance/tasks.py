@@ -1,8 +1,28 @@
 from celery import shared_task
+
 from member.models import Member
+from attendance.models import Attendance
+
+from datetime import datetime
+
 
 @shared_task
-def mark_all_member_active():
-    member = Member.objects.all()
-    member.update(is_active=True)
-    return member
+def add_attendance():
+    member = Member.objects.filter(is_active=True)
+    for i in member:
+        attendance = Attendance.objects.create(
+            member=i,
+            attendance_date=datetime.now().date(),
+        )
+    return True
+
+
+@shared_task
+def mark_member_attendance():
+    attendance = Attendance.objects.all()
+    for i in attendance:
+        if i.check_in:
+            i.is_present = True
+            if not i.check_out:
+                i.check_out = datetime.now().time()
+            i.save(update_fields=['is_present','check_out'])
