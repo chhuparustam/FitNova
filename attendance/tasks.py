@@ -10,7 +10,7 @@ from datetime import datetime
 def add_attendance():
     member = Member.objects.filter(is_active=True)
     for i in member:
-        attendance = Attendance.objects.create(
+        attenance = Attendance.objects.create(
             member=i,
             attendance_date=datetime.now().date(),
         )
@@ -20,6 +20,7 @@ def add_attendance():
 @shared_task
 def mark_member_attendance():
     attendance = Attendance.objects.all()
+    # decrease the day from subscription
     for i in attendance:
         if i.check_in:
             i.is_present = True

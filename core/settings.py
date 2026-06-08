@@ -49,7 +49,8 @@ INSTALLED_APPS = [
     'member',
     'trainer',
     'subscription',
-    'attendance'
+    'attendance',
+    'txn'
 ]
 REST_FRAMEWORK = {
     # YOUR SETTINGS
@@ -155,7 +156,7 @@ CELERY_BEAT_SCHEDULE = {
         ),
     },
     'mark_attendance':{
-        'task':'attendance.tasks. mark_member_attendance',
+        'task':'attendance.tasks.mark_member_attendance',
         'schedule':crontab(
             hour=22,
             minute=0,

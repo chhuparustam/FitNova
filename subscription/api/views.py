@@ -4,6 +4,7 @@ from rest_framework.response import Response
 
 from subscription.api.serializer import GymMembershipSerializer, SubscriptionSerializer
 from subscription.models import GymMemberShip, Subscription
+from txn.models import TXN
 
 
 class SubscriptionView(GenericAPIView):
@@ -82,3 +83,20 @@ class GymMemeberView(GenericAPIView):
             return Response({"message": "GymMemebership  Successfully created"}, 201)
         else:
             return Response(serializer.errors, 422)
+
+
+
+class MembershipPayment(GenericAPIView):
+    queryset = GymMemberShip.objects.all()
+    serializer_class = []
+
+    def get(self,request,id):
+        data = GymMemberShip.objects.get(id=id)
+        txn = TXN.objects.create(
+            member = data.member,
+            name = f'{data.member.first_name}-"Upgrade"',
+            amount = data.price
+        )
+        return Response({
+            "paymnet sucess":"True"
+        })
