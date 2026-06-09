@@ -2,6 +2,7 @@ from django.db import models
 
 class Status(models.TextChoices):
     INITIAL = "Initial"
+    KHALTI_PROCESS = "Khalti Process"
     COMPLETED = "Completed"
     PENDING = "Pending"
     USER_CANCELED = "User canceled"

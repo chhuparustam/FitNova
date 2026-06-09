@@ -3,8 +3,10 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
 from subscription.api.serializer import GymMembershipSerializer, SubscriptionSerializer
+from subscription.api.service import khalti_payment
 from subscription.models import GymMemberShip, Subscription
-from txn.models import TXN
+from txn.models import TXN, Status
+from django.db import transaction
 
 
 class SubscriptionView(GenericAPIView):
@@ -90,13 +92,18 @@ class MembershipPayment(GenericAPIView):
     queryset = GymMemberShip.objects.all()
     serializer_class = []
 
+    @transaction.atomic
     def get(self,request,id):
         data = GymMemberShip.objects.get(id=id)
         txn = TXN.objects.create(
             member = data.member,
-            name = f'{data.member.first_name}-"Upgrade"',
+            name = f'{data.member.first_name}-Upgrade',
             amount = data.price
         )
-        return Response({
-            "paymnet sucess":"True"
-        })
+        result = khalti_payment(data.member,txn)
+        if 'error' not in result:
+            txn.pidx = result['pidx']
+            txn.status = Status.KHALTI_PROCESS
+            txn.save()
+
+        return Response(result)
